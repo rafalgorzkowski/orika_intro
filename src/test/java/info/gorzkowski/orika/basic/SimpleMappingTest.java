@@ -8,15 +8,10 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * User: rafal
- * Date: 12.11.13
- * Time: 23:11
- */
 public class SimpleMappingTest {
 
     @Test
-    public void shouldMapParson() {
+    public void shouldMapPerson() {
         //given
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
 

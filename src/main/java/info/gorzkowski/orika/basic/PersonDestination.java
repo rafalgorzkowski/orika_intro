@@ -2,11 +2,7 @@ package info.gorzkowski.orika.basic;
 
 import java.util.Date;
 
-/**
- * User: rafal
- * Date: 12.11.13
- * Time: 23:01
- */
+
 public class PersonDestination {
     private String fullName;
     private String givenName;

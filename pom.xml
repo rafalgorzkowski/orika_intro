@@ -12,17 +12,23 @@
         <dependency>
             <groupId>ma.glasnost.orika</groupId>
             <artifactId>orika-core</artifactId>
-            <version>1.4.3</version>
+            <version>${orika.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert</artifactId>
-            <version>1.4</version>
+            <version>${fest.assert.version}</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <orika.version>1.4.4</orika.version>
+        <junit.version>4.11</junit.version>
+        <fest.assert.version>1.4</fest.assert.version>
+    </properties>
 </project>
