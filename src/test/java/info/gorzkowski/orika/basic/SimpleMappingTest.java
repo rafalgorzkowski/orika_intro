@@ -37,6 +37,7 @@ public class SimpleMappingTest {
         assertThat(personDestination.getGivenName()).isEqualTo("Jan");
         assertThat(personDestination.getSirName()).isEqualTo("Kowalski");
         assertThat(personDestination.getCurrentAge()).isEqualTo(18);
+        assertThat(personDestination.getBirthDate()).isEqualTo(src.getBirthDate());
     }
 
     @Test
