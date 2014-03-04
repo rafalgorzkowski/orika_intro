@@ -1,7 +1,7 @@
 package info.gorzkowski.orika.mapping.configuration;
 
-import info.gorzkowski.orika.basic.Person;
-import info.gorzkowski.orika.basic.PersonDestination;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import ma.glasnost.orika.BoundMapperFacade;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -10,10 +10,14 @@ import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ConfigurationTest {
+
+    public static final String NIP = "8202373081";
 
     @Test
     public void shouldRegisterClassMap() {
@@ -152,26 +156,83 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldMappListElements() {
+    public void shouldMapListElements() {
         //given
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
 
-        mapperFactory.classMap(BasicPerson.class, BasicPersonDtoWithConstructor.class)
-                .constructorB("birthDate")
-                .fieldAToB("name", "fullName")
-//                .field("age", "currentAge")
-                .byDefault()
+        mapperFactory.classMap(BasicPerson.class, BasicPersonDto.class)
+                .field("nameParts[0]", "firstName")
+                .field("nameParts[1]", "lastName")
                 .register();
 
-        BasicPerson bp = createBasicPerson("Jan", 20, Calendar.getInstance().getTime());
+        BasicPerson bp = new BasicPerson();
+        bp.setNameParts(Lists.asList("Jan", new String[]{"Kowalski"}));
 
         //when
         MapperFacade mapperFacade = mapperFactory.getMapperFacade();
-        BasicPersonDtoWithConstructor result = mapperFacade.map(bp, BasicPersonDtoWithConstructor.class);
+        BasicPersonDto result = mapperFacade.map(bp, BasicPersonDto.class);
 
         //then
-        assertThat(result.getFullName()).isEqualTo(bp.getName());
-        assertThat(result.getCurrentAge()).isEqualTo(0); //!!
-        assertThat(result.getBirthDate()).isNotNull();
+        assertThat(result.getFirstName()).isEqualTo("Jan");
+        assertThat(result.getLastName()).isEqualTo("Kowalski");
+        assertThat(result.getBirthDate()).isNull();
+        assertThat(result.getCurrentAge()).isEqualTo(0);
+        assertThat(result.getFullName()).isNull();
+    }
+
+    @Test
+    public void shouldMapMapElements() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+
+        mapperFactory.classMap(BasicPerson.class, BasicPersonDto.class)
+                .field("namePartsMap[\"first\"]", "firstName")
+                .field("namePartsMap['second']", "lastName")
+                .register();
+
+        BasicPerson bp = new BasicPerson();
+        Map<String, String> nameParamsMap = new HashMap<String, String>();
+        nameParamsMap.put("first", "Jan");
+        nameParamsMap.put("second", "Kowalski");
+        bp.setNamePartsMap(nameParamsMap);
+
+        //when
+        MapperFacade mapperFacade = mapperFactory.getMapperFacade();
+        BasicPersonDto result = mapperFacade.map(bp, BasicPersonDto.class);
+
+        //then
+        assertThat(result.getFirstName()).isEqualTo("Jan");
+        assertThat(result.getLastName()).isEqualTo("Kowalski");
+        assertThat(result.getBirthDate()).isNull();
+        assertThat(result.getCurrentAge()).isEqualTo(0);
+        assertThat(result.getFullName()).isNull();
+    }
+
+    @Test
+    public void shouldMapNestedElement() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+
+        mapperFactory.classMap(BasicPerson.class, BasicPersonDto.class)
+                .field("nestedElement.nip", "nip")
+                .register();
+
+        BasicPerson bp = new BasicPerson();
+        NestedElement nestedElement = new NestedElement();
+        nestedElement.setNip(NIP);
+        bp.setNestedElement(nestedElement);
+
+        //when
+        MapperFacade mapperFacade = mapperFactory.getMapperFacade();
+        BasicPersonDto result = mapperFacade.map(bp, BasicPersonDto.class);
+
+        //then
+        assertThat(result.getNip()).isNotNull();
+        assertThat(result.getNip()).isEqualTo(NIP);
+        assertThat(result.getFirstName()).isNull();
+        assertThat(result.getLastName()).isNull();
+        assertThat(result.getBirthDate()).isNull();
+        assertThat(result.getCurrentAge()).isEqualTo(0);
+        assertThat(result.getFullName()).isNull();
     }
 }
