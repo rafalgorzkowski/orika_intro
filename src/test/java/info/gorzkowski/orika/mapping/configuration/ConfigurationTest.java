@@ -1,17 +1,15 @@
 package info.gorzkowski.orika.mapping.configuration;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import ma.glasnost.orika.BoundMapperFacade;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.*;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
+import ma.glasnost.orika.metadata.ClassMap;
+import ma.glasnost.orika.metadata.FieldMap;
+import ma.glasnost.orika.metadata.ScoringClassMapBuilder;
 import org.junit.Test;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -235,4 +233,332 @@ public class ConfigurationTest {
         assertThat(result.getCurrentAge()).isEqualTo(0);
         assertThat(result.getFullName()).isNull();
     }
+
+
+    public enum Position {
+        FIRST,
+        LAST;
+    }
+
+    public static class Container {
+        public long longValue;
+        public String stringValue;
+        public List<String> listOfString;
+        public String[] arrayOfString;
+        public int[] arrayOfInt;
+        public Map<String, Object> map;
+        public Position enumValue;
+    }
+
+    @Test
+    public void shouldNotMapNull() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().mapNulls(false).build();
+
+        Container a = new Container();
+        Container b = new Container();
+
+        b.longValue = 1L;
+        b.stringValue = "TEST A";
+        b.arrayOfString = new String[]{"a", "b", "c"};
+        b.arrayOfInt = new int[]{1, 2, 3};
+        b.listOfString = Arrays.asList("l1", "l2");
+        b.map = Collections.singletonMap("key", (Object) "value");
+        b.enumValue = Position.FIRST;
+
+        //when
+        mapperFactory.getMapperFacade().map(a, b);
+
+        //then
+        assertThat(b.stringValue).isNotNull();
+        assertThat(b.arrayOfString).isNotNull();
+        assertThat(b.arrayOfInt).isNotNull();
+        assertThat(b.listOfString).isNotNull();
+        assertThat(b.map).isNotNull();
+        assertThat(b.enumValue).isNotNull();
+    }
+
+    @Test
+    public void shouldMapNull() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().mapNulls(true).build();
+
+        Container a = new Container();
+        Container b = new Container();
+
+        b.longValue = 1L;
+        b.stringValue = "TEST A";
+        b.arrayOfString = new String[]{"a", "b", "c"};
+        b.arrayOfInt = new int[]{1, 2, 3};
+        b.listOfString = Arrays.asList("l1", "l2");
+        b.map = Collections.singletonMap("key", (Object) "value");
+        b.enumValue = Position.FIRST;
+
+        //when
+        mapperFactory.getMapperFacade().map(a, b);
+
+        //then
+        assertThat(b.stringValue).isNull();
+        assertThat(b.arrayOfString).isNull();
+        assertThat(b.arrayOfInt).isNull();
+        assertThat(b.listOfString).isNull();
+        assertThat(b.map).isNull();
+        assertThat(b.enumValue).isNull();
+    }
+
+    @Test
+    public void shouldMapNulls_ClassLevel() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().mapNulls(false).build();
+
+        mapperFactory.classMap(Container.class, Container.class)
+                .mapNulls(true).byDefault().register();
+
+        Container a = new Container();
+        Container b = new Container();
+
+        b.longValue = 1L;
+        b.stringValue = "TEST A";
+        b.arrayOfString = new String[]{"a", "b", "c"};
+        b.arrayOfInt = new int[]{1, 2, 3};
+        b.listOfString = Arrays.asList("l1", "l2");
+        b.map = Collections.singletonMap("key", (Object) "value");
+        b.enumValue = Position.FIRST;
+
+        //when
+        mapperFactory.getMapperFacade().map(a, b);
+
+        //then
+        assertThat(b.stringValue).isNull();
+        assertThat(b.arrayOfString).isNull();
+        assertThat(b.arrayOfInt).isNull();
+        assertThat(b.listOfString).isNull();
+        assertThat(b.map).isNull();
+        assertThat(b.enumValue).isNull();
+    }
+
+    @Test
+    public void shouldNotMapNulls_ClassLevel() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().mapNulls(true).build();
+
+        mapperFactory.classMap(Container.class, Container.class)
+                .mapNulls(false).byDefault().register();
+
+        Container a = new Container();
+        Container b = new Container();
+
+        b.longValue = 1L;
+        b.stringValue = "TEST A";
+        b.arrayOfString = new String[]{"a", "b", "c"};
+        b.arrayOfInt = new int[]{1, 2, 3};
+        b.listOfString = Arrays.asList("l1", "l2");
+        b.map = Collections.singletonMap("key", (Object) "value");
+        b.enumValue = Position.FIRST;
+
+        //when
+        mapperFactory.getMapperFacade().map(a, b);
+
+        //then
+        assertThat(b.stringValue).isNotNull();
+        assertThat(b.arrayOfString).isNotNull();
+        assertThat(b.arrayOfInt).isNotNull();
+        assertThat(b.listOfString).isNotNull();
+        assertThat(b.map).isNotNull();
+        assertThat(b.enumValue).isNotNull();
+    }
+
+    @Test
+    public void shouldMap_ClassLevel() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().mapNulls(true).build();
+
+        mapperFactory.classMap(Container.class, Container.class)
+                .mapNulls(false).mapNullsInReverse(false)
+                .field("stringValue", "stringValue")
+                .field("arrayOfString", "arrayOfString")
+                .mapNulls(true).mapNullsInReverse(true)
+                .byDefault().register();
+
+        Container a = new Container();
+        Container b = new Container();
+
+        b.longValue = 1L;
+        b.stringValue = "TEST A";
+        b.arrayOfString = new String[]{"a", "b", "c"};
+        b.arrayOfInt = new int[]{1, 2, 3};
+        b.listOfString = Arrays.asList("l1", "l2");
+        b.map = Collections.singletonMap("key", (Object) "value");
+        b.enumValue = Position.FIRST;
+
+        //when
+        mapperFactory.getMapperFacade().map(a, b);
+
+        //then
+        assertThat(b.stringValue).isNotNull();
+        assertThat(b.arrayOfString).isNotNull();
+        assertThat(b.arrayOfInt).isNull();
+        assertThat(b.listOfString).isNull();
+        assertThat(b.map).isNull();
+        assertThat(b.enumValue).isNull();
+    }
+
+    @Test
+    public void shouldMapNulls_FieldLevel() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().mapNulls(false).build();
+
+        mapperFactory.classMap(Container.class, Container.class)
+                .mapNulls(false)
+                .fieldMap("arrayOfString").mapNulls(true).add()
+                .byDefault().register();
+
+        Container a = new Container();
+        Container b = new Container();
+
+        b.longValue = 1L;
+        b.stringValue = "TEST A";
+        b.arrayOfString = new String[]{"a", "b", "c"};
+        b.arrayOfInt = new int[]{1, 2, 3};
+        b.listOfString = Arrays.asList("l1", "l2");
+        b.map = Collections.singletonMap("key", (Object) "value");
+        b.enumValue = Position.FIRST;
+
+        //when
+        mapperFactory.getMapperFacade().map(a, b);
+
+        //then
+        assertThat(b.stringValue).isNotNull();
+        assertThat(b.arrayOfString).isNull();
+        assertThat(b.arrayOfInt).isNotNull();
+        assertThat(b.listOfString).isNotNull();
+        assertThat(b.map).isNotNull();
+        assertThat(b.enumValue).isNotNull();
+    }
+
+    @Test
+    public void shouldCustomizeMapping() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+
+        mapperFactory.classMap(BasicPerson.class, BasicPersonDto.class)
+                .field("age", "currentAge")
+                .byDefault()
+                .customize(
+                        new CustomMapper<BasicPerson, BasicPersonDto>() {
+                            @Override
+                            public void mapAtoB(BasicPerson basicPerson, BasicPersonDto basicPersonDto, MappingContext context) {
+                                Joiner joiner = Joiner.on(" ");
+                                String fullName = joiner.appendTo(new StringBuilder(basicPerson.getName()).append(" "),
+                                        basicPerson.getNameParts()).toString();
+
+                                basicPersonDto.setFullName(fullName);
+                            }
+                        }
+                )
+                .register();
+
+        BasicPerson bp = createBasicPerson("Jan", 20, Calendar.getInstance().getTime());
+        bp.setNameParts(Lists.asList("von", new String[]{"Kowalski"}));
+
+        //when
+        MapperFacade mapperFacade = mapperFactory.getMapperFacade();
+        BasicPersonDto result = mapperFacade.map(bp, BasicPersonDto.class);
+
+        //then
+        assertThat(result.getFullName()).isEqualTo("Jan von Kowalski");
+        assertThat(result.getCurrentAge()).isEqualTo(bp.getAge());
+        assertThat(result.getBirthDate()).isNotNull();
+    }
+
+    public static class Source {
+        public String lastName;
+        public Integer age;
+        public PostalAddress postalAddress;
+        public String firstName;
+        public String stateOfBirth;
+        public String eyeColor;
+        public String driversLicenseNumber;
+    }
+
+    public static class Name {
+        public String first;
+        public String middle;
+        public String last;
+    }
+
+    public static class Destination {
+        public Name name;
+        public Integer currentAge;
+        public String streetAddress;
+        public String birthState;
+        public String countryCode;
+        public String favoriteColor;
+        public String id;
+    }
+
+    public static class PostalAddress {
+        public String street;
+        public String city;
+        public String state;
+        public String postalCode;
+        public Country country;
+    }
+
+    public static class Country {
+        public String name;
+        public String alphaCode;
+        public int numericCode;
+    }
+
+    @Test
+    public void shouldCustomizeClassMapBuilder() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().classMapBuilderFactory(new ScoringClassMapBuilder.Factory()).build();
+
+
+        //when
+        ClassMap<Source, Destination> map = mapperFactory.classMap(Source.class, Destination.class).byDefault().toClassMap();
+
+        Map<String, String> mapping = new HashMap<String, String>();
+        for (FieldMap f : map.getFieldsMapping()) {
+            mapping.put(f.getSource().getExpression(), f.getDestination().getExpression());
+        }
+
+        //then
+        assertThat("name.first").isEqualTo(mapping.get("firstName"));
+        assertThat("name.last").isEqualTo(mapping.get("lastName"));
+        assertThat("streetAddress").isEqualTo(mapping.get("postalAddress.street"));
+        assertThat("countryCode").isEqualTo(mapping.get("postalAddress.country.alphaCode"));
+        assertThat("currentAge").isEqualTo(mapping.get("age"));
+        assertThat("birthState").isEqualTo(mapping.get("stateOfBirth"));
+
+        assertThat(mapping.containsKey("driversLicenseNumber")).isFalse();
+        assertThat(mapping.containsKey("eyeColor")).isFalse();
+    }
+
+    @Test
+    public void shouldMapWithCustomizedClassMapBuilder() {
+        //given
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().classMapBuilderFactory(new ScoringClassMapBuilder.Factory()).build();
+
+        mapperFactory.classMap(Source.class, Destination.class).byDefault().register();
+
+        MapperFacade mapperFacade = mapperFactory.getMapperFacade();
+
+        Source src = new Source();
+        src.firstName = "Jan";
+        src.postalAddress = new PostalAddress();
+        src.postalAddress.country = new Country();
+        src.postalAddress.country.alphaCode = "PL";
+
+        //when
+        Destination result = mapperFacade.map(src, Destination.class);
+
+        //then
+        assertThat(result.name.first).isEqualTo("Jan");
+        assertThat(result.countryCode).isEqualTo("PL");
+    }
+
+
 }
