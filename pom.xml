@@ -34,6 +34,11 @@
             <artifactId>guava</artifactId>
             <version>16.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>ma.glasnost.orika</groupId>
+            <artifactId>orika-eclipse-tools</artifactId>
+            <version>${orika.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
