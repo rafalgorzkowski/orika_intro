@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <bean id="mapperFacade" class="info.gorzkowski.util.orika.mapping.OrikaMapperFacadeFactory">
+        <property name="classMappings">
+            <list>
+                <bean class="info.gorzkowski.util.orika.mapping.OrikaMappingFactory"/>
+            </list>
+        </property>
+        <property name="converters">
+            <!--<bean class="info.gorzkowski.util.orika.converter.OrikaConvertersFactory"/>-->
+            <list>
+                <bean class ="info.gorzkowski.orika.converter.LongToProductConverter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="recordConverter" class="info.gorzkowski.util.orika.converter.OrikaConverter" abstract="true">
+        <constructor-arg index="0" ref="mapperFacade"/>
+    </bean>
+
+    <bean name="listConverter" class="info.gorzkowski.util.orika.converter.ListConverter" abstract="true"/>
+
+    <bean name="product2DtoConverter" parent="recordConverter">
+        <constructor-arg index="1" value="info.gorzkowski.dto.ProductDto"/>
+        <qualifier value="product2DtoConverter"/>
+    </bean>
+
+    <bean name="productList2DtoConverter" parent="listConverter">
+        <property name="rowConverter" ref="product2DtoConverter"/>
+    </bean>
+
+    <bean name="dto2PlanConverter" parent="recordConverter">
+        <constructor-arg index="1" value="info.gorzkowski.domain.Plan"/>
+        <qualifier value="dto2PlanConverter"/>
+    </bean>
+
+
+</beans>

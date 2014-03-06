@@ -1,5 +1,6 @@
 package info.gorzkowski.orika.filter;
 
+import info.gorzkowski.orika.mapping.configuration.ConfigurationTest;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.MappingContext;
@@ -7,12 +8,9 @@ import ma.glasnost.orika.NullFilter;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
 import org.fest.assertions.Delta;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -20,6 +18,7 @@ public class FilterTest {
 
     public static class SecurityFilter extends NullFilter<Object, Object> {
 
+        public static final int VISIBLE_PART = 4;
         private final String MASK = "*************";
 
         public boolean filtersDestination() {
@@ -39,7 +38,7 @@ public class FilterTest {
                                        final String destName, final MappingContext mappingContext) {
             if ("creditCardNumber".equals(sourceName)) {
                 String cardMask = (String) destinationValue;
-                destinationValue = (D) (MASK.substring(0, cardMask.length() - 4) + cardMask.substring(cardMask.length() - 4));
+                destinationValue = (D) (MASK.substring(0, cardMask.length() - VISIBLE_PART) + cardMask.substring(cardMask.length() - VISIBLE_PART));
             }
             return destinationValue;
 
