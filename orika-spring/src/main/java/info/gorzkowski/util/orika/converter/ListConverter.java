@@ -41,10 +41,6 @@ public class ListConverter<S, T> implements Converter<List<S>, List<T>> {
         return results;
     }
 
-    /**
-     * @param rowConverter
-     *            the {@link #rowConverter} to set
-     */
     public void setRowConverter(Converter<S, T> rowConverter) {
         this.rowConverter = rowConverter;
     }

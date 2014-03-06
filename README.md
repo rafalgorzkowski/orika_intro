@@ -3,8 +3,12 @@ orika_intro
 
 Orika introduction
 
+-- How to run spring module:
+mvn tomcat7:run
 
---spring:
+--orika-spring:
+
+--- JSON request
 http://localhost:8080/orika-intro/createPlan
 
 POST

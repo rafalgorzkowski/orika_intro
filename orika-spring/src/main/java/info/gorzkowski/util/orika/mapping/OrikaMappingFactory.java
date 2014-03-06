@@ -10,7 +10,7 @@ import ma.glasnost.orika.metadata.ClassMap;
 import java.util.List;
 
 /**
- * The class creates class mappings for requests module that could be used by orika factory
+ * The class creates class mappings for requests module that could be used by OrikaFactory
  * {@link OrikaMapperFacadeFactory}
  *
  * @author rgorzkowski

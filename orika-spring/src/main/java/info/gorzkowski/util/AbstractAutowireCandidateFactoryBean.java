@@ -6,7 +6,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Used to implements {@link FactoryBean}, which result will be used as autowiring candidate
+ * Used to implements {@link FactoryBean}, which result will be used as autowiring candidate.
  * 
  * @author rgorzkowski
  */
@@ -24,10 +24,5 @@ public abstract class AbstractAutowireCandidateFactoryBean<T> extends AbstractFa
         return instance;
     }
 
-    /**
-     * Create the bean instance.
-     * 
-     * @see #createInstance()
-     */
     protected abstract T doCreateInstance();
 }

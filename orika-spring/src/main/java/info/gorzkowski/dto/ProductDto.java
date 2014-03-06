@@ -1,8 +1,5 @@
 package info.gorzkowski.dto;
 
-/**
- * Created by rafal on 05.03.14.
- */
 public class ProductDto {
     private Long id;
     private String name;

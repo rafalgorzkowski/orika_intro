@@ -20,9 +20,6 @@ public abstract class AbstractConverterFactory extends AbstractFactoryBean<List<
         return createConverters(converters);
     }
 
-    /**
-     * Create your converters here.
-     */
     protected abstract List<Converter<?, ?>> createConverters(List<Converter<?, ?>> converters);
 
     @Override

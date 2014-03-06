@@ -16,9 +16,7 @@ import org.joda.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Creates and configures Orika {@link MapperFactory} It's used to register mappers and converters If you uses
- * {@link MapperFacade}, which bases on the {@link MapperFactory} you may skip to write bean mappers / converters by
- * hand
+ * Creates and configures Orika {@link MapperFactory}
  * <p/>
  * example mapper facade declaration
  * <bean id="mapperFacade" class="OrikaMapperFacadeFactory">
@@ -37,7 +35,7 @@ import java.util.*;
  * usage: Autowire MapperFacade mapperFacade;
  * <p/>
  * mapperFacade.map(source, dest);
- * dest = defaultMapper.map(source, Dest.class); *
+ * dest = defaultMapper.map(source, Dest.class);
  *
  * @author rgorzkowski
  * @see MapperFacade
@@ -46,7 +44,6 @@ public class OrikaMapperFacadeFactory extends AbstractAutowireCandidateFactoryBe
 
     private List<ClassMap<?, ?>> classMappings = Collections.emptyList();
     private List<Converter<?, ?>> converters = Collections.emptyList();
-    private Map<String, Converter<?, ?>> identifiableConverters = Collections.emptyMap();
 
     @Override
     protected MapperFacade doCreateInstance() {
@@ -63,10 +60,6 @@ public class OrikaMapperFacadeFactory extends AbstractAutowireCandidateFactoryBe
     private void registerConverters(ConverterFactory converterFactory) {
         for (Converter<?, ?> converter : converters) {
             converterFactory.registerConverter(converter);
-        }
-
-        for (Map.Entry<String, Converter<?, ?>> entry : identifiableConverters.entrySet()) {
-            converterFactory.registerConverter(entry.getKey(), entry.getValue());
         }
     }
 
@@ -97,10 +90,5 @@ public class OrikaMapperFacadeFactory extends AbstractAutowireCandidateFactoryBe
     public void setConverters(List<Converter<?, ?>> converters) {
         this.converters = new LinkedList<Converter<?, ?>>();
         this.converters.addAll(converters);
-    }
-
-    public void setIdentifiableConverters(Map<String, Converter<?, ?>> identifiableConverters) {
-        this.identifiableConverters = new HashMap<String, Converter<?, ?>>();
-        this.identifiableConverters.putAll(identifiableConverters);
     }
 }
